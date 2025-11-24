@@ -90,6 +90,10 @@ Notes:
 
 After tailscale up, check the admin panel: https://login.tailscale.com/admin/machines
 
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.pngtai.png" width="800">
+</p>
+
 MagicDNS (optional) can be enabled from the admin console — no paid domain required.
 
 ### C — MeshCentral (on a dedicated Ubuntu VM)
@@ -99,26 +103,51 @@ Create a directory (recommended place):
     sudo mkdir -p /opt/meshcentral
     cd /opt/meshcentral
 
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.pngC.png" width="800">
+</p>
+
 
 Install Node.js + MeshCentral (example commands; use distro packages if preferred):
 
-# install Node (if not present) -1
+# install Node (if not present)
     curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
     sudo apt install -y nodejs
 
-# install meshcentral globally -2
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png1.png" width="800">
+</p>
+
+# install meshcentral globally
     sudo npm install -g meshcentral
+
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png2.png" width="700">
+</p>
 
 
 Initialize by running:
 
     sudo node /usr/lib/node_modules/meshcentral/meshcentral.js
 
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png%203.png" width="700">
+</p>
+
 
 Stop it after it creates meshcentral-data folders and config.json. Then create a systemd service:
 
-#### /etc/systemd/system/meshcentral.service
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png4.png" width="700">
+</p>
 
+
+#### Confirm and configure meshcentral.service by running:
+
+       sudo nano /etc/systemd/system/meshcentral.service
+
+--
+    
     [Unit]
     Description=MeshCentral Server
     After=network.target
@@ -140,12 +169,21 @@ Enable and start:
     sudo systemctl enable --now meshcentral
     sudo systemctl status meshcentral
 
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png6.png" width="800">
+</p>
 
-If MeshCentral reports no config.json — run node once manually as above, let it generate files, then use ```systemd```
+
+If MeshCentral reports no config.json, run node once manually as above, let it generate files, then use ```systemd```
 
 Add an admin user via MeshCentral web UI on first run. Access via:
 
 #### https://(tailscale-ip for mesh-server)
+
+
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png7.png" width="850">
+</p>
 
 
 (You’ll get self-signed certs by default; accept or use Let’s Encrypt if public domain used.)
@@ -158,35 +196,73 @@ From MeshCentral web UI → Add Device → copy the provided install script (it 
        wget "https://<mesh-ip>/meshagents?script=1" --no-proxy --no-check-certificate -O ./meshinstall.sh) \
        && chmod 755 ./meshinstall.sh && sudo -E ./meshinstall.sh https://<mesh-ip> '<AGENTKEY>'
 
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png8.png" width="700">
+</p>
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png9.png" width="700">
+</p>
 
-Verify the agent shows Connected in MeshCentral.
+
+Verify the agent shows Connected in MeshCentral. At this point, the meshcentral creats a device access to the VM through the agent
+
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png10.png" width="45%" />
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png11.png" width="45%" />
+</p>
+
+
+
+#### VM is ready to be accessed remotely through Meshcentral Desktop
+
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png12.png" width="700">
+</p>
+
+
+#### Meshcentral also gives direct and seemless access to the VM files
+
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png13.png" width="700">
+</p>
+
+
+
+## Overview on completion
+
+<p align="center">
+  <img src="https://github.com/Stallion-Sec/Proxmox-Remote-Access-Stack-Tailscale-MeshCentral-SPICE/blob/images/image.png14.png" width="1000">
+</p>
+
+
+
 
 ### E — SPICE setup (optional, for high-fidelity console)
 
 #### Proxmox-side
 
-Shut down VM.
+* Shut down VM.
 
-Hardware → Display → Edit: set Graphic Card to VirtIO-GPU and Display to SPICE.
+* Hardware → Display → Edit: set Graphic Card to VirtIO-GPU and Display to SPICE.
 
-Save and boot VM.
+* Save and boot VM.
 
 #### Local-side (Windows)
 
-Install Remote Viewer / virt-viewer MSI.
+* Install Remote Viewer / virt-viewer MSI.
 
-From Proxmox console → choose SPICE → download pvespice.vv → open with Remote Viewer.
+* From Proxmox console → choose SPICE → download pvespice.vv → open with Remote Viewer.
 
-Inside VM
+* Inside VM
 
-Force Xorg (if using GNOME) to prevent Wayland issues:
+* Force Xorg (if using GNOME) to prevent Wayland issues:
 
       sudo nano /etc/gdm3/custom.conf
       # set WaylandEnable=false
       sudo reboot
 
 
-Test clipboard copy/paste both directions.
+* Test clipboard copy/paste both directions.
 
 ## 🔍 Verification checklist (what I tested)
 
@@ -233,20 +309,11 @@ Don’t publish Tailscale IPs/screenshots publicly (I removed mine from screensh
 
 
 
-
-
-
-Place images into /docs/screenshots/ and reference them like:
-
-![Proxmox - Display set to SPICE](/docs/screenshots/01-proxmox-spice.png "Proxmox: set Display -> SPICE")
-
-
-
-MIT License
+---
 
 Credits
 
-Built and documented by Joshua — home lab, Proxmox, MeshCentral, Tailscale.
+Built and documented by Joshua; Home lab, Proxmox, MeshCentral, Tailscale.
 
 
 ---
