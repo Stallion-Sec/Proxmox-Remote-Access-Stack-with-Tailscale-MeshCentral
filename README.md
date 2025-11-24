@@ -3,6 +3,39 @@
 **Quick summary:** I built a secure, travel-friendly remote access stack for my Proxmox environment.  
 It uses **Tailscale** as a private network overlay, **MeshCentral** for browser remote desktop, and **SPICE / QEMU Guest Agent** where I needed a rich local console. This README documents the goals, architecture, required commands, step-by-step setup, verification steps, and troubleshooting tips.
 
+
+
+                                                    ┌────────────────────────────┐
+                                                    │     Windows Laptop         │
+                                                    │   (Your main local device) │
+                                                    │       • Tailscale          │
+                                                    └──────────────┬─────────────┘
+                                                                   │
+                                                                   │  Encrypted Mesh (Tailnet)
+                                                                   ▼
+                                                   ┌────────────────────────────┐
+                                                   │        Proxmox Host        │
+                                                   │   • Runs Tailscale agent   │
+                                                   │   • Provides SPICE console │
+                                                   │   • Manages VMs            │
+                                                   └──────────────┬─────────────┘
+                                                                  │
+                                                                  │
+                                           ┌──────────────────────┼─────────────────────────────┐
+                                           │                      │                             │
+                                           ▼                      ▼                             ▼
+                                   
+                                   ┌────────────────┐   ┌───────────────────┐     ┌──────────────────────────┐
+                                   │ Ubuntu Desktop │   │ Ubuntu Server     │     │ Other Proxmox VMs        │
+                                   │ VM             │   │ (CLI only)        │     │ (Security labs, tools,   │
+                                   │ • Docker infra │   │ • MeshCentral     │     │ experiments, etc.)       │
+                                   │ • Mesh Agent   │   │ • Node.js runtime │     │ • Each running Tailscale │
+                                   │ • Tailscale    │   │ • Portainer       │     └──────────────────────────┘
+                                   │ • SPICE        │   │ • Tailscale       │
+                                   └────────────────┘   └───────────────────┘
+
+
+
 ---
 
 ## 🚩 TL;DR (for readers who want the result)
